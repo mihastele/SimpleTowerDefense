@@ -43,7 +43,11 @@ class Enemy {
         Random rnd = new Random();
         lives = size * lifeBuff / 10;
 
-        this.x = 200 + 25 + size / 2 + rnd.nextInt(Gdx.graphics.getHeight() - 2 * 200 - size - 2 * 25);  //200 + 25 + 10 + size / 2 + rnd.nextInt(Gdx.graphics.getHeight() - size / 2 - 200 - 10);
+        int tempPosOffset = Gdx.graphics.getHeight() - 2 * 200 - size - 2 * 25;
+        if(tempPosOffset<=0){
+            tempPosOffset = 10;
+        }
+        this.x = 200 + 25 + size / 2 + rnd.nextInt(tempPosOffset);  //200 + 25 + 10 + size / 2 + rnd.nextInt(Gdx.graphics.getHeight() - size / 2 - 200 - 10);
         //this.y= Gdx.graphics.getWidth();
         this.y = 0;
     }
