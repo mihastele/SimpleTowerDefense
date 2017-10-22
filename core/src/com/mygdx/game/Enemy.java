@@ -1,6 +1,8 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 
 import java.util.Random;
 
@@ -9,6 +11,14 @@ import java.util.Random;
  */
 
 public class Enemy {
+
+    ///// update /////
+    public Texture bodyTexture;
+    public Sprite bodySprite;
+
+    //////////////////
+
+
     int x, y;
     int size;
     int speed;

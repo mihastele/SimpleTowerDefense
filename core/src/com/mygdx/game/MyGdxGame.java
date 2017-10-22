@@ -198,7 +198,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
     public void selektirajTowerLogika(int x, int y, boolean desna) {
         selected = true;
-        Xs = x - ((X_CORE_OFFSET / 2) / 2);//
+        Xs = x - ((X_CORE_OFFSET / 2));// /2 in the end erased
         Ys = y - X_CORE_OFFSET / 2;
         Hs = X_CORE_OFFSET;//Ws=130;
 
@@ -361,28 +361,28 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
             if (time % 10 == 0) {
                 int speed = rnd.nextInt(4) + 1 + speedDeviation;
                 int size = rnd.nextInt(20) + 25 + sizeDeviation;
-                enemies.add(new Enemy(size, speed, deltaLifeBuffMultiplier));
+                enemies.add(new BasicEnemy(size, speed, deltaLifeBuffMultiplier));
             }
 
         } else if (time < 40 && readytoInititate) {
             if (time % 6 == 0) {
                 int speed = rnd.nextInt(4) + 1 + speedDeviation;
                 int size = rnd.nextInt(30) + 25 + sizeDeviation;
-                enemies.add(new Enemy(size, speed, deltaLifeBuffMultiplier));
+                enemies.add(new BasicEnemy(size, speed, deltaLifeBuffMultiplier));
             }
 
         } else if (time < 80 && readytoInititate) {
             if (time % 3 == 0) {
                 int speed = rnd.nextInt(4) + 1 + speedDeviation;
                 int size = rnd.nextInt(100) + 25 + sizeDeviation;
-                enemies.add(new Enemy(size, speed, deltaLifeBuffMultiplier));
+                enemies.add(new BasicEnemy(size, speed, deltaLifeBuffMultiplier));
             }
 
         } else {
             if (time % 2 == 0 && readytoInititate) {
                 int speed = rnd.nextInt(4) + 1 + speedDeviation;
                 int size = rnd.nextInt(100) + 25 + sizeDeviation;
-                enemies.add(new Enemy(size, speed, deltaLifeBuffMultiplier));
+                enemies.add(new BasicEnemy(size, speed, deltaLifeBuffMultiplier));
             }
         }
         readytoInititate = false;
@@ -537,6 +537,11 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
             s.coreTank.dispose();
 
         }
+
+        for (Enemy s : enemies) {
+            s.bodyTexture.dispose();
+
+        }
     }
 
     //Get middle of screen and adjust for message size
@@ -557,14 +562,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
         handleEnemies();
 
-        for (Enemy e : enemies) {
-            sr.circle(e.y, e.x, e.size);
-            e.premikaj();
-            if (e.y >= screenWidth) { // if enemy comes to finish
-                this.life--;
-                enemies.remove(e);
-            }
-        }
+
 
         if (life < 1) {
             System.exit(0);
@@ -625,6 +623,15 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
             batch.draw(refundIcon, screenWidth - SIZE_BOTTOM / 2 - 82, 2 * screenHeight / 3);
         }
 
+        for (Enemy e : enemies) {
+            e.bodySprite.setPosition(e.y,e.x);
+            e.bodySprite.draw(batch);
+            e.premikaj();
+            if (e.y >= screenWidth) { // if enemy comes to finish
+                this.life--;
+                enemies.remove(e);
+            }
+        }
 
         //font.draw(batch, message, 100, 100);
         heartS.setRotation(90);
