@@ -20,7 +20,6 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
 import static com.badlogic.gdx.Gdx.graphics;
 
 
@@ -77,7 +76,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
             t.aliJeVDosegu(enemies);
             if (!(t.getTimer() + 10 >= t.getShootDelay())) {
                 t.tCore.setRotation((float) t.getKot());
-                t.tCore.setPosition(t.getY(), t.getX()+t.getOffsetCoreY());
+                t.tCore.setPosition(t.getY(), t.getX() + t.getOffsetCoreY());
                 t.tCore.draw(batch);
 
                 if (t.readyToShoot) {
@@ -113,7 +112,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
             this.batch.begin();
             batch.draw(s.tankBody, s.getY() + s.getOffsetBodyX(), s.getX() + s.getOffsetBodyY());
             s.tCore.setRotation(90);
-            s.tCore.setPosition(s.getY(), s.getX()+s.getOffsetCoreY());
+            s.tCore.setPosition(s.getY(), s.getX() + s.getOffsetCoreY());
             s.tCore.draw(batch);
             this.batch.end();
         }
@@ -136,11 +135,11 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     }
 
     public void handleAddTower(int x, int y, boolean desno) { // TODO logika po dodajanu towerja
-        Tower t=null;
-        int ini=1; //samples.size(); ce bi bil push a arajdekju
-        for (Tower s:samples) {
-            if(indexOfTheSelected==ini){
-                t=s;
+        Tower t = null;
+        int ini = 1; //samples.size(); ce bi bil push a arajdekju
+        for (Tower s : samples) {
+            if (indexOfTheSelected == ini) {
+                t = s;
             }
             ini++;
         }
@@ -181,7 +180,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
                 }
 
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -199,8 +198,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
     public void selektirajTowerLogika(int x, int y, boolean desna) {
         selected = true;
-        Xs = x - ((X_CORE_OFFSET/2)/2);//
-        Ys = y - X_CORE_OFFSET/2;
+        Xs = x - ((X_CORE_OFFSET / 2) / 2);//
+        Ys = y - X_CORE_OFFSET / 2;
         Hs = X_CORE_OFFSET;//Ws=130;
 
     }
@@ -236,7 +235,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
             if (selectedMenu) { //selektiranega pobarva
                 drawPluses();
                 drawSelectionBox(screenWidth - SIZE_BOTTOM, indexOfTheSelected * screenHeight / 5 - screenHeight / 10, SIZE_BOTTOM, screenHeight / 5);
-				/*sr.begin(ShapeRenderer.ShapeType.Filled);
+                /*sr.begin(ShapeRenderer.ShapeType.Filled);
 				sr.setColor(0/255f, (float)221.0/255, (float)255.0/255,1);
 				sr.rect(screenWidth-SIZE_BOTTOM+50,indexOfTheSelected*screenHeight/5-screenHeight/10,200,screenHeight/5);
 				sr.end();*/
@@ -260,10 +259,10 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         } else {
             try {
 
-                Tower t=null;
-                for (Tower s:towers) {
-                    if(s.getX()==selX&&s.getY()==selY){
-                        t=s;
+                Tower t = null;
+                for (Tower s : towers) {
+                    if (s.getX() == selX && s.getY() == selY) {
+                        t = s;
                     }
                 }
                 //upgrade text logic here TODO
@@ -288,9 +287,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         batch.begin();
         for (int i = 0; i < prostaPolja.size; i++) {
             if (i < prostaPoljaMeja) {
-                batch.draw(addIcon, prostaPolja.get(i) - 29, X_CORE_OFFSET/2 - 29); //odmik je ravno četrtina velikosti slike
+                batch.draw(addIcon, prostaPolja.get(i) - 48, (X_CORE_OFFSET / 2) - 48); //odmik je ravno četrtina velikosti slike
             } else
-                batch.draw(addIcon, prostaPolja.get(i) - 29, screenHeight - X_CORE_OFFSET/2 - 29);
+                batch.draw(addIcon, prostaPolja.get(i) - 48, screenHeight - (X_CORE_OFFSET / 2) - 48);
         }
         batch.end();
     }
@@ -406,7 +405,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         startCoreGame();
     }
 
-    public void startCoreGame(){
+    public void startCoreGame() {
         //denar = 400000;
 
         batch = new SpriteBatch();
@@ -475,8 +474,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
         //enemies.add(new Enemy(10, 2, screenHeight / 2)); //old, new buff would make this one unstoppable
 
-        if(screenHeight / 5 > 100){
-            X_CORE_OFFSET = (short)(screenHeight / 5); //TODO test if typecasting works ok
+        if (screenHeight / 5 > 100) {
+            X_CORE_OFFSET = (short) (screenHeight / 5); //TODO test if typecasting works ok
         }
 
 
@@ -551,7 +550,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         drawMainGame();
     }
 
-    public void drawMainGame(){
+    public void drawMainGame() {
 
         sr.begin(ShapeRenderer.ShapeType.Filled);
 
@@ -685,10 +684,10 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
                 if (screenY < screenHeight / 3 + SIZE_BOTTOM / 2 && screenY > screenHeight / 3 - SIZE_BOTTOM / 2) {
                     //TODO dodej logiko za upgrejde
                     try {
-                        Tower t=null;
-                        for (Tower s:towers) {
-                            if(s.getX()==selX&&s.getY()==selY){
-                               t=s;
+                        Tower t = null;
+                        for (Tower s : towers) {
+                            if (s.getX() == selX && s.getY() == selY) {
+                                t = s;
                             }
                         }
 
@@ -741,11 +740,11 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         if (selectedMenu) {
             selected = false; // TODO na novo dodan preglej ce si s tem pofejlu
             if (selectedMenu) {
-                if (localY <= screenWidth * 4 / 5 && localY > X_CORE_OFFSET/2) {
+                if (localY <= screenWidth * 4 / 5 && localY > X_CORE_OFFSET / 2) {
                     if (right) {
-                        handleAddTower(screenHeight - X_CORE_OFFSET/2, localY, right);
+                        handleAddTower(screenHeight - X_CORE_OFFSET / 2, localY, right);
                     } else {
-                        handleAddTower(X_CORE_OFFSET/2, localY, right);
+                        handleAddTower(X_CORE_OFFSET / 2, localY, right);
                     }
                 }
             }
@@ -755,13 +754,13 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
             if (checkIfTowerThere(localY, right)) { // ce je tower tam ga selektiri TODO spremeba iz ScreenX v LocalY
                 platno = false; //
                 if (right) {
-                    int x = screenHeight - X_CORE_OFFSET/2;
+                    int x = screenHeight - X_CORE_OFFSET / 2;
                     selX = x;
                     selY = localY;
                     selRight = right;
                     selektirajTowerLogika(x, localY, right);
                 } else {
-                    int x = X_CORE_OFFSET/2;
+                    int x = X_CORE_OFFSET / 2;
                     selX = x;
                     selY = localY;
                     selRight = right;
