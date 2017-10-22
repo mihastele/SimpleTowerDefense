@@ -46,6 +46,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     //private Sprite tankBody,tCore;
     //private String message = "Touch me";
 
+
+    Texture bg, bgWall, bgCastleFloor;
+
     private boolean selected = false, selectedMenu = false, platno = true; // selected-pove ali je kater ot towerjev selektiran, selectedMenu pove ali je kater na meniju selektiran(dela samo za tower meni),
     //platno pove ali je na dodajanju towerjev(true) ali pa na upgrejdanju teh(false)
     private int indexOfTheSelected = 0, countForIndex = 0, selX = 0, selY = 0;
@@ -236,7 +239,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
                 drawPluses();
                 drawSelectionBox(screenWidth - SIZE_BOTTOM, indexOfTheSelected * screenHeight / 5 - screenHeight / 10, SIZE_BOTTOM, screenHeight / 5);
                 /*sr.begin(ShapeRenderer.ShapeType.Filled);
-				sr.setColor(0/255f, (float)221.0/255, (float)255.0/255,1);
+                sr.setColor(0/255f, (float)221.0/255, (float)255.0/255,1);
 				sr.rect(screenWidth-SIZE_BOTTOM+50,indexOfTheSelected*screenHeight/5-screenHeight/10,200,screenHeight/5);
 				sr.end();*/
             }
@@ -408,6 +411,16 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     public void startCoreGame() {
         //denar = 400000;
 
+        bg = new Texture("pattern.jpg");
+        bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+
+        bgWall = new Texture("castlewall.png");
+        bgWall.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+
+        bgCastleFloor = new Texture("castleFloor.png");
+        bgCastleFloor.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+
+
         batch = new SpriteBatch();
         batchrotated = new SpriteBatch();
 
@@ -442,7 +455,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
 
         int temp = 0; //da gre do polovice in potem spet znova začne
-		/*for (int i=screenWidth/5;i<screenWidth*2;i=i+screenWidth/5){ //gre od prvega do zadnjega na levi ki je eden manjši od indeksa, ter naprej na desne isto
+        /*for (int i=screenWidth/5;i<screenWidth*2;i=i+screenWidth/5){ //gre od prvega do zadnjega na levi ki je eden manjši od indeksa, ter naprej na desne isto
 			if(i<screenWidth) {
 				prostaPolja.add( i % screenWidth);
 				temp=prostaPolja.size;
@@ -522,6 +535,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         removeReturn.dispose();
         timer.cancel();
         timer.purge();
+        bg.dispose();
 
 
         //coreTank.dispose();
@@ -559,9 +573,14 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
         sr.begin(ShapeRenderer.ShapeType.Filled);
 
+        batch.begin();
+        batch.draw(bg, 0, X_CORE_OFFSET, 0, 0, screenWidth, screenHeight - 2 * X_CORE_OFFSET);
+        batch.draw(bgCastleFloor, 0, 0, 0, 0, screenWidth, X_CORE_OFFSET);
+        batch.draw(bgCastleFloor, 0, screenHeight - X_CORE_OFFSET, 0, 0, screenWidth , X_CORE_OFFSET);
+
+        batch.end();
 
         handleEnemies();
-
 
 
         if (life < 1) {
@@ -570,8 +589,16 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
         //sr.setColor((float)1.0*66/255, (float)1.0*215/255, (float)1.0*244/255,1);
         sr.setColor((float) 0.9, (float) 0.9, (float) 0.9, 1);
-        sr.rect(0, X_CORE_OFFSET, screenWidth, 25); // y  , x , height , width
-        sr.rect(0, screenHeight - X_CORE_OFFSET - 25, screenWidth, 25); // y , x ,height , width // X_CORE:OFFSET -25 default
+
+        ///////////wall drawing//////////////////
+        batch.begin();
+        batch.draw(bgWall, 0, X_CORE_OFFSET, 0, 0, screenWidth, 25); //25 is the thickness of wall
+        batch.draw(bgWall, 0, screenHeight - X_CORE_OFFSET - 25, 0, 0, screenWidth, 25);
+        batch.end();
+
+        //sr.rect(0, X_CORE_OFFSET, screenWidth, 25); // y  , x , height , width
+        //sr.rect(0, screenHeight - X_CORE_OFFSET - 25, screenWidth, 25); // y , x ,height , width // X_CORE:OFFSET -25 default
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         sr.rect(screenWidth - SIZE_BOTTOM, 0, SIZE_BOTTOM, screenHeight); // y , x ,height , width
 
@@ -624,7 +651,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         }
 
         for (Enemy e : enemies) {
-            e.bodySprite.setPosition(e.y,e.x);
+            e.bodySprite.setPosition(e.y, e.x);
             e.bodySprite.draw(batch);
             e.premikaj();
             if (e.y >= screenWidth) { // if enemy comes to finish
