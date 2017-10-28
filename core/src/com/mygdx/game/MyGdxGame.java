@@ -10,9 +10,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayDeque;
@@ -47,7 +52,25 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     //private String message = "Touch me";
 
 
-    Texture bg, bgWall, bgCastleFloor;
+    Texture bg, bgWall, bgCastleFloor, loadingScreen; //handling backgrounds
+
+    Sprite ldgScreen;
+
+    GameDisplayStateHandler gameHandler;
+
+    ///////////MENU BUTTONS HANDLINGS ////////
+
+    TextureAtlas menuBtns;
+
+    Skin menuBtnsSkin;
+
+    Button playBtn, top10Btn, quitBtn;
+
+    Table table;
+
+    Stage stage;
+
+    /////////////////////////////////////////
 
     private boolean selected = false, selectedMenu = false, platno = true; // selected-pove ali je kater ot towerjev selektiran, selectedMenu pove ali je kater na meniju selektiran(dela samo za tower meni),
     //platno pove ali je na dodajanju towerjev(true) ali pa na upgrejdanju teh(false)
@@ -406,10 +429,15 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     @Override
     public void create() {
         startCoreGame();
+        mainMenuInit();
+        menuHelperOnStart();
     }
 
     public void startCoreGame() {
         //denar = 400000;
+
+        loadingScreen = new Texture("loadingScreen.png");
+        loadingScreen.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
 
         bg = new Texture("pattern.jpg");
         bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
@@ -456,7 +484,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
         int temp = 0; //da gre do polovice in potem spet znova začne
         /*for (int i=screenWidth/5;i<screenWidth*2;i=i+screenWidth/5){ //gre od prvega do zadnjega na levi ki je eden manjši od indeksa, ter naprej na desne isto
-			if(i<screenWidth) {
+            if(i<screenWidth) {
 				prostaPolja.add( i % screenWidth);
 				temp=prostaPolja.size;
 			}
@@ -478,12 +506,6 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         samples.add(new BasicTower((screenHeight / 5), screenWidth * 9 / 10 + screenWidth / 20 - 25));
         samples.add(new StrongTower((screenHeight * 2 / 5), screenWidth * 9 / 10 + screenWidth / 20 - 25));
 
-        //towers.add(new Tower(100,screenWidth/5));
-        //towers.add(new Tower(screenHeight-100,screenWidth/5,true));
-        //towers.getLast().onUpgrade();
-        //towers.getLast().onUpgrade();
-        //towers.getLast().onUpgrade();
-        //towers.getLast().onUpgrade();
 
         //enemies.add(new Enemy(10, 2, screenHeight / 2)); //old, new buff would make this one unstoppable
 
@@ -515,6 +537,15 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         Gdx.input.setInputProcessor(this);
     }
 
+    public void menuHelperOnStart(){
+        gameHandler = new GameDisplayStateHandler(this);
+        gameHandler.welcomeScreen();
+        ldgScreen = new Sprite(loadingScreen);
+        ldgScreen.setSize(screenWidth,screenHeight);
+        ldgScreen.setPosition(0,0);
+
+    }
+
     //Don't forget to free font
     @Override
     public void dispose() {
@@ -536,7 +567,14 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         timer.cancel();
         timer.purge();
         bg.dispose();
+        bgWall.dispose();
+        bgCastleFloor.dispose();
+        loadingScreen.dispose();
 
+
+        menuBtns.dispose();
+        menuBtnsSkin.dispose();
+        stage.dispose();
 
         //coreTank.dispose();
         //bodyOfTank.dispose();
@@ -566,7 +604,27 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        drawMainGame();
+
+        switch (displayState){
+            case 0:
+                batch.begin();
+
+                ldgScreen.draw(batch);
+                //batch.draw(loadingScreen,0,0,0,0, screenWidth, screenHeight);
+                batch.end();
+                break;
+            case 1:
+                stage.draw();
+                break;
+            case 2:
+                drawMainGame();
+                break;
+            default:
+
+
+        }
+
+        //drawMainGame(); under state 2
     }
 
     public void drawMainGame() {
@@ -576,7 +634,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         batch.begin();
         batch.draw(bg, 0, X_CORE_OFFSET, 0, 0, screenWidth, screenHeight - 2 * X_CORE_OFFSET);
         batch.draw(bgCastleFloor, 0, 0, 0, 0, screenWidth, X_CORE_OFFSET);
-        batch.draw(bgCastleFloor, 0, screenHeight - X_CORE_OFFSET, 0, 0, screenWidth , X_CORE_OFFSET);
+        batch.draw(bgCastleFloor, 0, screenHeight - X_CORE_OFFSET, 0, 0, screenWidth, X_CORE_OFFSET);
 
         batch.end();
 
@@ -677,6 +735,32 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         //zivljenja.draw(batch,Integer.toString(life),0,screenWidth-10);
 
         batch.end();
+
+    }
+
+
+    public void mainMenuInit() {
+        menuBtns = new TextureAtlas("button.pack");
+        menuBtnsSkin = new Skin(menuBtns);
+
+        stage = new Stage();
+
+        table = new Table();
+        table.setBounds(0,0,screenWidth,screenHeight);
+
+        playBtn = new Button(menuBtnsSkin.getDrawable("playBtn"));
+        top10Btn = new Button(menuBtnsSkin.getDrawable("top10"));
+        quitBtn = new Button(menuBtnsSkin.getDrawable("quit"));
+
+        table.add(playBtn);
+        table.add(top10Btn);
+        table.add(quitBtn);
+
+        table.setTransform(true);
+
+        table.setRotation(0);
+        table.setPosition(0,0);
+        stage.addActor(table);
 
     }
 
