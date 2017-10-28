@@ -1,6 +1,8 @@
 package com.mygdx.game;
 
 
+import com.badlogic.gdx.Gdx;
+
 import java.util.concurrent.TimeUnit;
 /**
  * Created by Miha on 21.10.2017.
@@ -42,6 +44,7 @@ public class GameDisplayStateHandler {
 
     public void startGame(){
         game.displayState = 2;
+        Gdx.input.setInputProcessor(game);
     }
 
     public void gameOver(){
@@ -49,6 +52,7 @@ public class GameDisplayStateHandler {
     }
 
     public void mainMenu(){
+        Gdx.input.setInputProcessor(game.stage);
         game.displayState = 1;
     }
 

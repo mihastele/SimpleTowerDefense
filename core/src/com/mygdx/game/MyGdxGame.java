@@ -14,10 +14,15 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayDeque;
@@ -507,7 +512,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         samples.add(new StrongTower((screenHeight * 2 / 5), screenWidth * 9 / 10 + screenWidth / 20 - 25));
 
 
-        //enemies.add(new Enemy(10, 2, screenHeight / 2)); //old, new buff would make this one unstoppable
+        //enemies.add(new BasicEnemy(10, 2, screenHeight / 2)); //old, new buff would make this one unstoppable
 
         if (screenHeight / 5 > 100) {
             X_CORE_OFFSET = (short) (screenHeight / 5); //TODO test if typecasting works ok
@@ -752,14 +757,63 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         top10Btn = new Button(menuBtnsSkin.getDrawable("top10"));
         quitBtn = new Button(menuBtnsSkin.getDrawable("quit"));
 
+        playBtn.setTransform(true);
+        top10Btn.setTransform(true);
+        quitBtn.setTransform(true);
+
+        playBtn.setOrigin(menuBtnsSkin.getDrawable("playBtn").getMinWidth()/2,menuBtnsSkin.getDrawable("playBtn").getMinHeight()/2);
+        top10Btn.setOrigin(menuBtnsSkin.getDrawable("top10").getMinWidth()/2,menuBtnsSkin.getDrawable("top10").getMinHeight()/2);
+        quitBtn.setOrigin(menuBtnsSkin.getDrawable("quit").getMinWidth()/2,menuBtnsSkin.getDrawable("quit").getMinHeight()/2);
+
+
+        playBtn.setRotation(90);
+        top10Btn.setRotation(90);
+        quitBtn.setRotation(90);
+
+        /*ChangeListener cl = new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (((Button) actor).getName().equals("playBtn")){
+                    gameHandler.startGame();
+                }
+            }
+        };
+
+        playBtn.addListener(cl);*/
+
+        playBtn.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                gameHandler.startGame();
+            }
+        });
+
+        top10Btn.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                //TODO Implement
+            }
+        });
+
+        quitBtn.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeEvent event, Actor actor) {
+                dispose();
+                System.exit(0);
+            }
+        });
+
+
         table.add(playBtn);
         table.add(top10Btn);
         table.add(quitBtn);
 
-        table.setTransform(true);
+        /*table.setTransform(true);
 
-        table.setRotation(0);
+        table.setRotation(90);
+        table.setOrigin(screenWidth/2,screenHeight/2);
         table.setPosition(0,0);
+        //OBRNE VSE UKUP NA 90 STOPINJ IN SO NAROBE POSTACKAN*/
         stage.addActor(table);
 
     }
