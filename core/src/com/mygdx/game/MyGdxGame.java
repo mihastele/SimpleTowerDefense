@@ -4,6 +4,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Net;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,17 +13,16 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.net.HttpParametersUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayDeque;
@@ -49,19 +49,21 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     public short displayState = 0;
 
     //Screen dimensions will be used to center text
-    private BitmapFont font, zivljenja, denarBitmapFont, scoreBitmapFont, tankPrice, upgradePrice, removeReturn;
+    private BitmapFont font, zivljenja, denarBitmapFont, scoreBitmapFont, tankPrice, upgradePrice, removeReturn, endScoreText;
     private int screenWidth, screenHeight;
     private ShapeRenderer sr;
     private Texture addIcon, upgradeIcon, refundIcon;
     //private Sprite tankBody,tCore;
     //private String message = "Touch me";
 
+    private short endX, endY;//,endTimer; // end scene variables to draw the gameOver screen
 
     Texture bg, bgWall, bgCastleFloor, loadingScreen; //handling backgrounds
 
     Sprite ldgScreen;
 
-    GameDisplayStateHandler gameHandler;
+    Texture gameOverTexture;
+    Sprite gameOverSprite;
 
     ///////////MENU BUTTONS HANDLINGS ////////
 
@@ -76,6 +78,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     Stage stage;
 
     /////////////////////////////////////////
+
+    GameDisplayStateHandler gameHandler;
 
     private boolean selected = false, selectedMenu = false, platno = true; // selected-pove ali je kater ot towerjev selektiran, selectedMenu pove ali je kater na meniju selektiran(dela samo za tower meni),
     //platno pove ali je na dodajanju towerjev(true) ali pa na upgrejdanju teh(false)
@@ -436,10 +440,15 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         startCoreGame();
         mainMenuInit();
         menuHelperOnStart();
+        reset();
     }
 
     public void startCoreGame() {
         //denar = 400000;
+
+
+        screenWidth = graphics.getWidth();
+        screenHeight = graphics.getHeight();
 
         loadingScreen = new Texture("loadingScreen.png");
         loadingScreen.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
@@ -456,6 +465,25 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
         batch = new SpriteBatch();
         batchrotated = new SpriteBatch();
+
+
+        gameOverTexture = new Texture("gameOver.png");
+        gameOverSprite = new Sprite(gameOverTexture);
+
+
+
+        gameOverSprite.setSize(screenHeight/2, screenHeight/2/4);
+
+        //gameOverSprite.setOrigin(gameOverSprite.getRegionWidth()/2,gameOverSprite.getRegionHeight()/2);
+        gameOverSprite.setOriginCenter();
+
+
+        gameOverSprite.setPosition(screenWidth/8, screenHeight/2);
+
+        gameOverSprite.setRotation(90);
+
+
+        //gameOverSprite.setScale(screenHeight / 2, screenWidth / 2);
 
 
         heart = new Texture("life.png");
@@ -483,8 +511,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         }
 
 
-        screenWidth = graphics.getWidth();
-        screenHeight = graphics.getHeight();
+
 
 
         int temp = 0; //da gre do polovice in potem spet znova začne
@@ -542,14 +569,23 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         Gdx.input.setInputProcessor(this);
     }
 
-    public void menuHelperOnStart(){
+    public void menuHelperOnStart() {
         gameHandler = new GameDisplayStateHandler(this);
         gameHandler.welcomeScreen();
         ldgScreen = new Sprite(loadingScreen);
-        ldgScreen.setSize(screenWidth,screenHeight);
-        ldgScreen.setPosition(0,0);
+        ldgScreen.setSize(screenWidth, screenHeight);
+        ldgScreen.setPosition(0, 0);
 
     }
+
+    public void reset(){
+        enemyType = 0;
+        life = 6;
+        score = 0l;
+        denar = 400;
+    }
+
+
 
     //Don't forget to free font
     @Override
@@ -563,6 +599,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         coin.dispose();
         denarBitmapFont.dispose();
         scoreBitmapFont.dispose();
+        endScoreText.dispose();
         tankPrice.dispose();
         addIcon.dispose();
         upgradeIcon.dispose();
@@ -575,6 +612,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         bgWall.dispose();
         bgCastleFloor.dispose();
         loadingScreen.dispose();
+        gameOverTexture.dispose();
 
 
         menuBtns.dispose();
@@ -610,7 +648,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
-        switch (displayState){
+        switch (displayState) {
             case 0:
                 batch.begin();
 
@@ -625,6 +663,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
                 drawMainGame();
                 break;
             default:
+                endGameLogic();
 
 
         }
@@ -633,6 +672,11 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     }
 
     public void drawMainGame() {
+
+        /*if(displayState !=3) { //todo remove
+            endGameSync(); //todo remove
+            gameHandler.gameOver(); //todo remove
+        }*/
 
         sr.begin(ShapeRenderer.ShapeType.Filled);
 
@@ -646,8 +690,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         handleEnemies();
 
 
-        if (life < 1) {
-            System.exit(0);
+        if (life < 1 && displayState != 3) { //displaystate prevention of spamming
+            endGameSync();
+            gameHandler.gameOver();
         }
 
         //sr.setColor((float)1.0*66/255, (float)1.0*215/255, (float)1.0*244/255,1);
@@ -713,14 +758,20 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
             batch.draw(refundIcon, screenWidth - SIZE_BOTTOM / 2 - 82, 2 * screenHeight / 3);
         }
 
-        for (Enemy e : enemies) {
-            e.bodySprite.setPosition(e.y, e.x);
-            e.bodySprite.draw(batch);
-            e.premikaj();
-            if (e.y >= screenWidth) { // if enemy comes to finish
-                this.life--;
-                enemies.remove(e);
+
+        try {
+
+            for (Enemy e : enemies) {
+                e.bodySprite.setPosition(e.y, e.x);
+                e.bodySprite.draw(batch);
+                e.premikaj();
+                if (e.y >= screenWidth) { // if enemy comes to finish
+                    this.life--;
+                    enemies.remove(e);
+                }
             }
+        }catch (Exception e){
+
         }
 
         //font.draw(batch, message, 100, 100);
@@ -743,6 +794,93 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
     }
 
+    public void endGameLogic() {
+
+        if (endX < screenHeight / 2) {
+            drawMainGame();
+        }
+
+        sr.begin(ShapeRenderer.ShapeType.Filled);
+        sr.setColor(Color.GRAY);
+        sr.rect(screenWidth / 2 - endY, screenHeight / 2 - endX, endY * 2, endX * 2);
+        sr.end();
+
+
+        if (endX >= screenHeight / 2) {
+            batch.begin();
+
+            gameOverSprite.draw(batch);
+
+            //batch.draw(gameOverSprite, screenHeight / 4, screenWidth / 8, screenHeight / 2, screenWidth / 2);
+            batch.end();
+            batchrotated.begin();
+            endScoreText.draw(batchrotated, "score:" + score, screenHeight/2 - endScoreText.getLineHeight(), -screenWidth/2);
+            batchrotated.end();
+        }
+    }
+
+    public void endGameSync() { //data parallel synchronization for rendering
+        //endTimer = 0;
+        endX = 0; //TODO prever sinhronizacijo!
+        endY = 0;
+
+        endScoreText = new BitmapFont();
+        endScoreText.getData().setScale(3);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (endX = 0; endX < (screenHeight) / 2; endX++) {
+                    endY = (short) ((screenWidth * endX * 1.0) / screenHeight); //here only the variables change, rendering calls endGameLogic where the rendering will take place
+                    try {
+                        Thread.sleep(7);
+                    } catch (InterruptedException e) {
+
+                    }
+
+                }
+
+                try {
+                    Thread.sleep(5000);
+                }
+                catch (Exception e){
+
+                }
+
+                gameHandler.mainMenu();
+            }
+        }).start();
+
+
+        new NetAPITest().create();
+        //handleRequest();
+
+
+
+
+    }
+
+    /*public void handleRequest(){
+        Net.HttpRequest httpGet = new Net.HttpRequest(Net.HttpMethods.GET);
+        httpGet.setUrl("http://www.api.nejcribic.com/TowerDefenseStatistics/root/app/api.php?send/time=100&score=100&date=1020&device=android");
+        //httpGet.setContent(HttpParametersUtils.convertHttpParameters(parameters));
+        Gdx.net.sendHttpRequest (httpGet, new Net.HttpResponseListener() {
+            public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                String status = httpResponse.getResultAsString();
+                //do stuff here based on response
+            }
+
+            public void failed(Throwable t) {
+                String status = "failed";
+                //do stuff here based on the failed attempt
+            }
+
+            @Override
+            public void cancelled() {
+                return;
+            }
+        });
+    }*/
 
     public void mainMenuInit() {
         menuBtns = new TextureAtlas("button.pack");
@@ -751,7 +889,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         stage = new Stage();
 
         table = new Table();
-        table.setBounds(0,0,screenWidth,screenHeight);
+        table.setBounds(0, 0, screenWidth, screenHeight);
 
         playBtn = new Button(menuBtnsSkin.getDrawable("playBtn"));
         top10Btn = new Button(menuBtnsSkin.getDrawable("top10"));
@@ -761,9 +899,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         top10Btn.setTransform(true);
         quitBtn.setTransform(true);
 
-        playBtn.setOrigin(menuBtnsSkin.getDrawable("playBtn").getMinWidth()/2,menuBtnsSkin.getDrawable("playBtn").getMinHeight()/2);
-        top10Btn.setOrigin(menuBtnsSkin.getDrawable("top10").getMinWidth()/2,menuBtnsSkin.getDrawable("top10").getMinHeight()/2);
-        quitBtn.setOrigin(menuBtnsSkin.getDrawable("quit").getMinWidth()/2,menuBtnsSkin.getDrawable("quit").getMinHeight()/2);
+        playBtn.setOrigin(menuBtnsSkin.getDrawable("playBtn").getMinWidth() / 2, menuBtnsSkin.getDrawable("playBtn").getMinHeight() / 2);
+        top10Btn.setOrigin(menuBtnsSkin.getDrawable("top10").getMinWidth() / 2, menuBtnsSkin.getDrawable("top10").getMinHeight() / 2);
+        quitBtn.setOrigin(menuBtnsSkin.getDrawable("quit").getMinWidth() / 2, menuBtnsSkin.getDrawable("quit").getMinHeight() / 2);
 
 
         playBtn.setRotation(90);
@@ -783,21 +921,21 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
         playBtn.addListener(new ChangeListener() {
             @Override
-            public void changed (ChangeEvent event, Actor actor) {
+            public void changed(ChangeEvent event, Actor actor) {
                 gameHandler.startGame();
             }
         });
 
         top10Btn.addListener(new ChangeListener() {
             @Override
-            public void changed (ChangeEvent event, Actor actor) {
+            public void changed(ChangeEvent event, Actor actor) {
                 //TODO Implement
             }
         });
 
         quitBtn.addListener(new ChangeListener() {
             @Override
-            public void changed (ChangeEvent event, Actor actor) {
+            public void changed(ChangeEvent event, Actor actor) {
                 dispose();
                 System.exit(0);
             }
