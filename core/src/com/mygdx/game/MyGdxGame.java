@@ -35,9 +35,9 @@ import static com.badlogic.gdx.Gdx.graphics;
 
 public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
-    ArrayDeque<Enemy> enemies = new ArrayDeque<Enemy>();
-    ArrayDeque<Tower> towers = new ArrayDeque<Tower>();
-    Array<Integer> prostaPolja = new Array<Integer>(); //TODO s for zanko pr create ustvar seznam vseh prostih mest, nato pa jih spotoma ko dodajaš towerje odstranjuješ in po odstranitvi towerja
+    ArrayDeque<Enemy> enemies;
+    ArrayDeque<Tower> towers;
+    Array<Integer> prostaPolja; //TODO s for zanko pr create ustvar seznam vseh prostih mest, nato pa jih spotoma ko dodajaš towerje odstranjuješ in po odstranitvi towerja
     //TODO nazaj notr vržeš , polja so Y vrednosti, za ali je levo ali desno pa dodaj logiko, svetujem da pregleduješ ko dodajaš tower
     int prostaPoljaMeja = 0; //da veš kje se začnejo desni
     private SpriteBatch batch, batchrotated;
@@ -437,7 +437,10 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     //Set screen dimensions, font, and use this class for input processing
     @Override
     public void create() {
-        startCoreGame();
+
+        initSources();
+        //startCoreGame();
+
         mainMenuInit();
         menuHelperOnStart();
         reset();
@@ -447,71 +450,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         //denar = 400000;
 
 
-        screenWidth = graphics.getWidth();
-        screenHeight = graphics.getHeight();
-
-        loadingScreen = new Texture("loadingScreen.png");
-        loadingScreen.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
-
-        bg = new Texture("pattern.jpg");
-        bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
-
-        bgWall = new Texture("castlewall.png");
-        bgWall.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
-
-        bgCastleFloor = new Texture("castleFloor.png");
-        bgCastleFloor.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
-
-
-        batch = new SpriteBatch();
-        batchrotated = new SpriteBatch();
-
-
-        gameOverTexture = new Texture("gameOver.png");
-        gameOverSprite = new Sprite(gameOverTexture);
-
-
-
-        gameOverSprite.setSize(screenHeight/2, screenHeight/2/4);
-
-        //gameOverSprite.setOrigin(gameOverSprite.getRegionWidth()/2,gameOverSprite.getRegionHeight()/2);
-        gameOverSprite.setOriginCenter();
-
-
-        gameOverSprite.setPosition(screenWidth/8, screenHeight/2);
-
-        gameOverSprite.setRotation(90);
-
-
-        //gameOverSprite.setScale(screenHeight / 2, screenWidth / 2);
-
-
-        heart = new Texture("life.png");
-        coin = new Texture("coin.png");
-        coinS = new Sprite(coin);
-        heartS = new Sprite(heart);
-
-        tankPrice = new BitmapFont();
-        tankPrice.getData().setScale(3);
-
-        addIcon = new Texture("add.png");
-        upgradeIcon = new Texture("upgrade.png");
-        refundIcon = new Texture("refund.png");
-        upgradePrice = new BitmapFont();
-        upgradePrice.getData().setScale(3);
-        removeReturn = new BitmapFont();
-        removeReturn.getData().setScale(3);
-
-        try {
-            timer = new Timer();
-            timer.schedule(new TajmerHendl(), 0, 500);
-
-        } catch (Exception e) {
-
-        }
-
-
-
+        enemies = new ArrayDeque<Enemy>();
+        towers = new ArrayDeque<Tower>();
+        prostaPolja = new Array<Integer>();
 
 
         int temp = 0; //da gre do polovice in potem spet znova začne
@@ -535,36 +476,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
         prostaPoljaMeja = prostaPolja.size / 2;
 
-        samples.add(new BasicTower((screenHeight / 5), screenWidth * 9 / 10 + screenWidth / 20 - 25));
-        samples.add(new StrongTower((screenHeight * 2 / 5), screenWidth * 9 / 10 + screenWidth / 20 - 25));
 
-
-        //enemies.add(new BasicEnemy(10, 2, screenHeight / 2)); //old, new buff would make this one unstoppable
-
-        if (screenHeight / 5 > 100) {
-            X_CORE_OFFSET = (short) (screenHeight / 5); //TODO test if typecasting works ok
-        }
-
-
-        if ((screenWidth / 9) <= 150) {
-            SIZE_BOTTOM = 150;
-        } else
-            SIZE_BOTTOM = screenWidth / 9;
-        sr = new ShapeRenderer();
-
-        font = new BitmapFont();
-        font.setColor(Color.BLUE);
-        font.getData().setScale(5, 5);
-
-        denarBitmapFont = new BitmapFont();
-        scoreBitmapFont = new BitmapFont();
-        zivljenja = new BitmapFont(); //flipped
-        zivljenja.setColor(Color.BLUE);
-        zivljenja.getData().setScale(5, 5);
-        //coreTank= new Texture("pipe.png");
-        //bodyOfTank = new Texture("body_tank.png");
-        //tCore=new Sprite(coreTank);
-        //tankBody= new Sprite(bodyOfTank);
 
         Gdx.input.setInputProcessor(this);
     }
@@ -585,7 +497,126 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         denar = 400;
     }
 
+    public void reInit(){
+        reset();
+        startCoreGame();
+    }
 
+
+    public void initSources(){ //this only needs to be init at start , but call startCoreGame first?
+
+
+
+        loadingScreen = new Texture("loadingScreen.png");
+        loadingScreen.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
+
+        bg = new Texture("pattern.jpg");
+        bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+
+        bgWall = new Texture("castlewall.png");
+        bgWall.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+
+        bgCastleFloor = new Texture("castleFloor.png");
+        bgCastleFloor.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+
+
+        batch = new SpriteBatch();
+        batchrotated = new SpriteBatch();
+
+        font = new BitmapFont();
+        font.setColor(Color.BLUE);
+
+        gameOverTexture = new Texture("gameOver.png");
+        gameOverSprite = new Sprite(gameOverTexture);
+
+        heart = new Texture("life.png");
+        coin = new Texture("coin.png");
+        coinS = new Sprite(coin);
+        heartS = new Sprite(heart);
+
+        tankPrice = new BitmapFont();
+        addIcon = new Texture("add.png");
+        upgradeIcon = new Texture("upgrade.png");
+        refundIcon = new Texture("refund.png");
+        upgradePrice = new BitmapFont();
+
+
+        denarBitmapFont = new BitmapFont();
+        scoreBitmapFont = new BitmapFont();
+        zivljenja = new BitmapFont(); //flipped
+        zivljenja.setColor(Color.BLUE);
+        zivljenja.getData().setScale(5, 5);
+
+        prostaPolja = new Array<Integer>();
+        screenWidth = graphics.getWidth();
+        screenHeight = graphics.getHeight();
+
+
+        endScoreText = new BitmapFont();
+        endScoreText.getData().setScale(3);
+
+
+
+        gameOverSprite.setSize(screenHeight/2, screenHeight/2/4);
+
+        //gameOverSprite.setOrigin(gameOverSprite.getRegionWidth()/2,gameOverSprite.getRegionHeight()/2);
+        gameOverSprite.setOriginCenter();
+
+
+        gameOverSprite.setPosition(screenWidth/8, screenHeight/2);
+
+        gameOverSprite.setRotation(90);
+
+
+        //gameOverSprite.setScale(screenHeight / 2, screenWidth / 2);
+
+
+
+        tankPrice.getData().setScale(3);
+
+
+        upgradePrice.getData().setScale(3);
+        removeReturn = new BitmapFont();
+        removeReturn.getData().setScale(3);
+
+        try {
+            timer = new Timer();
+            timer.schedule(new TajmerHendl(), 0, 500);
+
+        } catch (Exception e) {
+
+        }
+
+
+        samples.add(new BasicTower((screenHeight / 5), screenWidth * 9 / 10 + screenWidth / 20 - 25));
+        samples.add(new StrongTower((screenHeight * 2 / 5), screenWidth * 9 / 10 + screenWidth / 20 - 25));
+
+
+        //enemies.add(new BasicEnemy(10, 2, screenHeight / 2)); //old, new buff would make this one unstoppable
+
+        if (screenHeight / 5 > 100) {
+            X_CORE_OFFSET = (short) (screenHeight / 5); //TODO test if typecasting works ok
+        }
+
+
+        if ((screenWidth / 9) <= 150) {
+            SIZE_BOTTOM = 150;
+        } else
+            SIZE_BOTTOM = screenWidth / 9;
+        sr = new ShapeRenderer();
+
+
+        font.getData().setScale(5, 5);
+
+
+        //coreTank= new Texture("pipe.png");
+        //bodyOfTank = new Texture("body_tank.png");
+        //tCore=new Sprite(coreTank);
+        //tankBody= new Sprite(bodyOfTank);
+
+
+
+    }
 
     //Don't forget to free font
     @Override
@@ -824,8 +855,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         endX = 0; //TODO prever sinhronizacijo!
         endY = 0;
 
-        endScoreText = new BitmapFont();
-        endScoreText.getData().setScale(3);
+
 
         new Thread(new Runnable() {
             @Override

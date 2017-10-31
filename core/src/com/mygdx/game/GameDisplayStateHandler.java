@@ -33,7 +33,7 @@ public class GameDisplayStateHandler {
                 }
                 catch (Exception e){
                     for (int i=0; i<100000 ; i++){
-                        //short forloop delay if sleep gets interrupted
+                        //short for loop delay if sleep gets interrupted
                     }
                 }
                 mainMenu();//game.displayState = 1; // after welcome screen delay, render will change the state
@@ -58,7 +58,7 @@ public class GameDisplayStateHandler {
 
     public void mainMenu(){
         //game.reset();
-        //game.reinit();
+        game.reInit();
         Gdx.input.setInputProcessor(game.stage);
         game.displayState = 1;
     }
