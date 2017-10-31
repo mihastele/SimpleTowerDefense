@@ -716,6 +716,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         batch.draw(bgCastleFloor, 0, 0, 0, 0, screenWidth, X_CORE_OFFSET);
         batch.draw(bgCastleFloor, 0, screenHeight - X_CORE_OFFSET, 0, 0, screenWidth, X_CORE_OFFSET);
 
+
+        drawEnemies();
+
         batch.end();
 
         handleEnemies();
@@ -725,6 +728,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
             endGameSync();
             gameHandler.gameOver();
         }
+
+
+
 
         //sr.setColor((float)1.0*66/255, (float)1.0*215/255, (float)1.0*244/255,1);
         sr.setColor((float) 0.9, (float) 0.9, (float) 0.9, 1);
@@ -789,21 +795,6 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
             batch.draw(refundIcon, screenWidth - SIZE_BOTTOM / 2 - 82, 2 * screenHeight / 3);
         }
 
-
-        try {
-
-            for (Enemy e : enemies) {
-                e.bodySprite.setPosition(e.y, e.x);
-                e.bodySprite.draw(batch);
-                e.premikaj();
-                if (e.y >= screenWidth) { // if enemy comes to finish
-                    this.life--;
-                    enemies.remove(e);
-                }
-            }
-        }catch (Exception e){
-
-        }
 
         //font.draw(batch, message, 100, 100);
         heartS.setRotation(90);
@@ -984,6 +975,23 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         //OBRNE VSE UKUP NA 90 STOPINJ IN SO NAROBE POSTACKAN*/
         stage.addActor(table);
 
+    }
+
+    public void drawEnemies(){
+        try {
+
+            for (Enemy e : enemies) {
+                e.bodySprite.setPosition(e.y, e.x);
+                e.bodySprite.draw(batch);
+                e.premikaj();
+                if (e.y >= screenWidth) { // if enemy comes to finish
+                    this.life--;
+                    enemies.remove(e);
+                }
+            }
+        }catch (Exception e){
+
+        }
     }
 
     //Return true to indicate that the event was handled
