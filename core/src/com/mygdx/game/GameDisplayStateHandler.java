@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Cursor;
 
 import java.util.concurrent.TimeUnit;
 /**
@@ -49,6 +50,7 @@ public class GameDisplayStateHandler {
 
     public void startGame(){
         game.displayState = 2;
+        game.startTime = System.nanoTime();
         Gdx.input.setInputProcessor(game);
     }
 

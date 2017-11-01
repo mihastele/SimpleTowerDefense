@@ -13,6 +13,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
+import java.util.Date;
+
 /**
  * Created by Miha on 10/17/2017.
  */
@@ -35,13 +37,14 @@ public class NetAPITest implements HttpResponseListener {
     BitmapFont font;
     HttpRequest httpRequest;
 
-    public void create() {
+    public void create(long time, long score, Date date, String device) {
 
         String url;
         String httpMethod = Net.HttpMethods.GET;
         String requestContent = null;
 
-        url = "http://api.nejcribic.com/TowerDefenseStatistics/root/app/api.php?send/time={time}&score={score}&date={date}&device=XAXAXA";//"http://libgdx.badlogicgames.com/releases/libgdx-1.2.0.zip";
+
+        url = "http://api.nejcribic.com/TowerDefenseStatistics/root/app/api.php?send/time="+time+"&score="+score+"&date="+date.getTime()+"&device="+device;//"http://libgdx.badlogicgames.com/releases/libgdx-1.2.0.zip";
 
         httpRequest = new HttpRequest(httpMethod);
         httpRequest.setUrl(url);

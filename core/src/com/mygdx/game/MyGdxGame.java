@@ -26,6 +26,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayDeque;
+import java.util.Date;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -55,6 +56,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     private Texture addIcon, upgradeIcon, refundIcon;
     //private Sprite tankBody,tCore;
     //private String message = "Touch me";
+    public long startTime,gameOverTime;
 
     private short endX, endY;//,endTimer; // end scene variables to draw the gameOver screen
 
@@ -478,7 +480,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
 
 
-        Gdx.input.setInputProcessor(this);
+        //Gdx.input.setInputProcessor(this);
     }
 
     public void menuHelperOnStart() {
@@ -873,7 +875,10 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         }).start();
 
 
-        new NetAPITest().create();
+        gameOverTime = System.nanoTime() - startTime;
+        Date date = new Date();
+
+        new NetAPITest().create(gameOverTime,score,date,Gdx.app.getType().toString());
         //handleRequest();
 
 
