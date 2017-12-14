@@ -4,7 +4,6 @@ package com.mygdx.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.Net;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -13,10 +12,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.net.HttpParametersUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -56,7 +53,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     private Texture addIcon, upgradeIcon, refundIcon;
     //private Sprite tankBody,tCore;
     //private String message = "Touch me";
-    public long startTime,gameOverTime;
+    public long startTime, gameOverTime;
 
     private short endX, endY;//,endTimer; // end scene variables to draw the gameOver screen
 
@@ -100,6 +97,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     private int speedDeviation = 0;
     private int sizeDeviation = 0;
     private int enemyType = 0;
+    private int probbability = 0; //tell's how often a different type of tanks spawns
     private int life = 6;
     private long score = 0l;
     private int denar = 400;
@@ -331,7 +329,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         batch.end();
     }
 
-    public void handleEnemies() {
+    @Deprecated
+    public void handleEnemies() {  //Deprecated
 //        private int time=0,timeSeconds = 0; TODO zanimajo nas te deli kode
 //        private int timeDelay=3;
 //        private int speedDeviation=0;
@@ -435,6 +434,119 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
     }
 
+    public void enemySpawnLogic() {
+
+        int deltaLifeBuffMultiplier = 1;
+        //Note: Readytoinitialize is true when timer ticks so it prevent's spamming
+
+        switch (enemyType) {
+            case 0:
+                deltaLifeBuffMultiplier = 1;
+                break;
+            case 1:
+                deltaLifeBuffMultiplier = 2;
+                break;
+            case 2:
+                deltaLifeBuffMultiplier = 3;
+                break;
+            case 3:
+                deltaLifeBuffMultiplier = 5;
+                break;
+            case 4:
+                deltaLifeBuffMultiplier = 7;
+                break;
+            case 5:
+                deltaLifeBuffMultiplier = 12;
+                break;
+
+            default:
+                sr.setColor(Color.GOLD);
+                deltaLifeBuffMultiplier += 1;
+        }
+
+        if (time == 119 && enemyType < 6 && readytoInititate) {
+            readytoInititate = false; //enkrat izved
+            enemyType++;
+            sizeDeviation += 10; //SizeDeviation is deprecated, it was used to draw different sizes
+            speedDeviation += 1;
+        } else if (time == 119 && readytoInititate) {
+            readytoInititate = false;
+            sizeDeviation += 10;
+            speedDeviation += 1;
+        }
+
+        Random rnd = new Random();
+
+        if (time < 20 && readytoInititate) { //first, they don't spawn so quickly, it get's quicker over time
+            if (time % 10 == 0) {
+                enemySpawnCase(rnd.nextInt(3) + 1 + speedDeviation, rnd.nextInt(20) + 25 + sizeDeviation, deltaLifeBuffMultiplier, enemyType, rnd);
+            }
+
+        } else if (time < 40 && readytoInititate) {
+            if (time % 10 == 0) {
+                enemySpawnCase(rnd.nextInt(4) + 1 + speedDeviation, rnd.nextInt(30) + 25 + sizeDeviation, deltaLifeBuffMultiplier, enemyType, rnd);
+            }
+
+        } else if (time < 80 && readytoInititate) {
+            if (time % 6 == 0) {
+                enemySpawnCase(rnd.nextInt(4) + 1 + speedDeviation, rnd.nextInt(100) + 25 + sizeDeviation, deltaLifeBuffMultiplier, enemyType, rnd);
+            }
+
+        } else {
+            if (time % 3 == 0 && readytoInititate) {
+                enemySpawnCase(rnd.nextInt(4) + 1 + speedDeviation, rnd.nextInt(100) + 25 + sizeDeviation, deltaLifeBuffMultiplier, enemyType, rnd);
+            }
+        }
+        readytoInititate = false;
+
+    }
+
+    public void enemySpawnCase(int speed, int size, int deltaBuffMul, int enemyType, Random random) { //keep it consistent next time...
+        int selekcija = random.nextInt(20);
+        Enemy enemy;
+        switch (enemyType) {
+            case 0:
+                enemy = new BasicEnemy(size, speed, deltaBuffMul);
+                break;
+
+            case 1:
+                enemy = enemySelection(selekcija,1000, 16, size, speed, deltaBuffMul); //1000 is unreachable
+                break;
+
+            case 2:
+                enemy = enemySelection(selekcija,1000, 12, size, speed, deltaBuffMul); //1000 is unreachable
+                break;
+
+            case 3:
+                enemy = enemySelection(selekcija,1000, 8, size, speed, deltaBuffMul); //1000 is unreachable
+                break;
+
+            case 4:
+                enemy = enemySelection(selekcija,19, 10, size, speed, deltaBuffMul);
+                break;
+
+            case 5:
+                enemy = enemySelection(selekcija,18, 7, size, speed, deltaBuffMul);
+                break;
+
+            default:
+                enemy = enemySelection(selekcija,17, 6, size, speed, deltaBuffMul);
+        }
+
+        enemies.add(enemy);
+
+    }
+
+    public Enemy enemySelection(int sel,int zg, int sp,int size,int speed,int deltaBuffMul){
+        if(sel>=zg){
+            return new BigEnemy(size, speed, deltaBuffMul);
+        }else if(sel < sp) {
+            return new BasicEnemy(size, speed, deltaBuffMul);
+        }else {
+            return new BlueEnemy(size, speed, deltaBuffMul);
+        }
+
+    };
 
     //Set screen dimensions, font, and use this class for input processing
     @Override
@@ -479,7 +591,6 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         prostaPoljaMeja = prostaPolja.size / 2;
 
 
-
         //Gdx.input.setInputProcessor(this);
     }
 
@@ -492,21 +603,20 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
     }
 
-    public void reset(){
+    public void reset() {
         enemyType = 0;
         life = 6;
         score = 0l;
         denar = 400;
     }
 
-    public void reInit(){
+    public void reInit() {
         reset();
         startCoreGame();
     }
 
 
-    public void initSources(){ //this only needs to be init at start , but call startCoreGame first?
-
+    public void initSources() { //this only needs to be init at start , but call startCoreGame first?
 
 
         loadingScreen = new Texture("loadingScreen.png");
@@ -558,20 +668,18 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         endScoreText.getData().setScale(3);
 
 
-
-        gameOverSprite.setSize(screenHeight/2, screenHeight/2/4);
+        gameOverSprite.setSize(screenHeight / 2, screenHeight / 2 / 4);
 
         //gameOverSprite.setOrigin(gameOverSprite.getRegionWidth()/2,gameOverSprite.getRegionHeight()/2);
         gameOverSprite.setOriginCenter();
 
 
-        gameOverSprite.setPosition(screenWidth/8, screenHeight/2);
+        gameOverSprite.setPosition(screenWidth / 8, screenHeight / 2);
 
         gameOverSprite.setRotation(90);
 
 
         //gameOverSprite.setScale(screenHeight / 2, screenWidth / 2);
-
 
 
         tankPrice.getData().setScale(3);
@@ -615,7 +723,6 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         //bodyOfTank = new Texture("body_tank.png");
         //tCore=new Sprite(coreTank);
         //tankBody= new Sprite(bodyOfTank);
-
 
 
     }
@@ -723,15 +830,14 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
         batch.end();
 
-        handleEnemies();
+        //handleEnemies(); //Deprecated
+        enemySpawnLogic();
 
 
         if (life < 1 && displayState != 3) { //displaystate prevention of spamming
             endGameSync();
             gameHandler.gameOver();
         }
-
-
 
 
         //sr.setColor((float)1.0*66/255, (float)1.0*215/255, (float)1.0*244/255,1);
@@ -838,7 +944,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
             //batch.draw(gameOverSprite, screenHeight / 4, screenWidth / 8, screenHeight / 2, screenWidth / 2);
             batch.end();
             batchrotated.begin();
-            endScoreText.draw(batchrotated, "score:" + score, screenHeight/2 - endScoreText.getLineHeight(), -screenWidth/2);
+            endScoreText.draw(batchrotated, "score:" + score, screenHeight / 2 - endScoreText.getLineHeight(), -screenWidth / 2);
             batchrotated.end();
         }
     }
@@ -847,7 +953,6 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         //endTimer = 0;
         endX = 0; //TODO prever sinhronizacijo!
         endY = 0;
-
 
 
         new Thread(new Runnable() {
@@ -865,8 +970,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
                 try {
                     Thread.sleep(5000);
-                }
-                catch (Exception e){
+                } catch (Exception e) {
 
                 }
 
@@ -878,10 +982,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
         gameOverTime = System.nanoTime() - startTime;
         Date date = new Date();
 
-        new NetAPITest().create(gameOverTime,score,date,Gdx.app.getType().toString());
+        new NetAPITest().create(gameOverTime, score, date, Gdx.app.getType().toString());
         //handleRequest();
-
-
 
 
     }
@@ -982,7 +1084,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
     }
 
-    public void drawEnemies(){
+    public void drawEnemies() {
         try {
 
             for (Enemy e : enemies) {
@@ -994,7 +1096,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
                     enemies.remove(e);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
     }
@@ -1195,6 +1297,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
     }
 
 }
+
 
 class TajmerHendl extends TimerTask {
     @Override

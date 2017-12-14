@@ -42,7 +42,7 @@ public class Tower {
         //tankBody = new Sprite(bodyOfTank);
         this.x = x;
         this.y = y;
-        radij = Gdx.graphics.getBackBufferHeight() / 2 - 50;
+        radij = Gdx.graphics.getBackBufferHeight() / 2;
         kot = 90;
 
     }

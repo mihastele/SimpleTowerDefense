@@ -21,7 +21,7 @@ import java.util.Date;
 
 public class NetAPITest implements HttpResponseListener {
 
-    SpriteBatch batch;
+    /*SpriteBatch batch;
     Skin skin;
     Stage stage;
     TextButton btnDownloadImage;
@@ -34,7 +34,7 @@ public class NetAPITest implements HttpResponseListener {
     Label statusLabel;
     Texture texture;
     String text;
-    BitmapFont font;
+    BitmapFont font;*/
     HttpRequest httpRequest;
 
     public void create(long time, long score, Date date, String device) {
