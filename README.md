@@ -1,5 +1,5 @@
-# Tower Defense Android Application
+# Tower Defense Application
 
-Alpha stage of the game preview
+Alpha stage of the game preview, tested only on Android for now...
 
 contact stele1000@gmail.com for more info 
